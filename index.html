@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhankhar CSC Centre Receipt Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .thermal-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Thermal Printer Print Styles - Strictly aligned to top-left corner */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            body * {
+                visibility: hidden;
+            }
+            #thermal-receipt, #thermal-receipt * {
+                visibility: visible;
+            }
+            #thermal-receipt {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 80mm !important;
+                max-width: 80mm !important;
+                margin: 0 !important;
+                padding: 2mm !important;
+                background: white !important;
+                color: black !important;
+                font-size: 11px !important;
+                box-shadow: none !important;
+                border: none !important;
+                transform: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: 80mm auto;
+                margin: 0mm;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md no-print">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-lg">
+                    <i class="fa-solid fa-print text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Dhankhar CSC Centre Dhakla</h1>
+                    <p class="text-xs text-slate-400">Payment Clear & Pending Thermal Slip Generator</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                <span class="flex items-center gap-1.5 bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-600">
+                    <i class="fa-solid fa-phone text-indigo-400"></i> 9996036806
+                </span>
+                <span class="flex items-center gap-1.5 bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-600">
+                    <i class="fa-solid fa-envelope text-indigo-400"></i> ashishdhankhar704@gmail.com
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- FORM SECTION (7 Cols) -->
+        <section class="lg:col-span-7 bg-slate-800/90 backdrop-blur border border-slate-700 rounded-2xl p-6 shadow-xl no-print">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen text-indigo-400"></i> Slip Details Form
+                </h2>
+                <button type="button" id="reset-btn" class="text-xs text-slate-400 hover:text-white underline transition-colors cursor-pointer">
+                    Reset Form
+                </button>
+            </div>
+
+            <form id="slip-form" class="space-y-6">
+                <!-- Customer & Service Name -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Customer Name</label>
+                        <input type="text" id="cust-name" required placeholder="e.g. Rahul Kumar" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Customer Mobile</label>
+                        <input type="tel" id="cust-phone" placeholder="10-digit no." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Service Name</label>
+                    <input type="text" id="service-name" required placeholder="e.g. Income Certificate / Exam Form / PAN Card" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Payment Master Status -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
+                    <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-2">Primary Payment Status</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center justify-center gap-2 p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-xl cursor-pointer hover:bg-emerald-900/30 transition-all has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/60">
+                            <input type="radio" name="payment-master-status" value="CLEAR" class="text-emerald-500 focus:ring-emerald-500">
+                            <span class="text-sm font-semibold text-emerald-400">Clear</span>
+                        </label>
+                        <label class="flex items-center justify-center gap-2 p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl cursor-pointer hover:bg-amber-900/30 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/60">
+                            <input type="radio" name="payment-master-status" value="PENDING PAYMENT" checked class="text-amber-500 focus:ring-amber-500">
+                            <span class="text-sm font-semibold text-amber-400">Pending Payment</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider">Service Checklist (Select Multiple Options)</label>
+                    
+                    <!-- Option 1 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-1" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">1. Application Status</span>
+                        </label>
+                        <div id="sub-1" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt1-sub" value="Application Submitted" checked class="text-indigo-500"> Application Submitted</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt1-sub" value="Application Not Submitted" class="text-indigo-500"> Application Not Submitted</label>
+                        </div>
+                    </div>
+
+                    <!-- Option 2 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-2" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">2. Application Form Print / Send Status</span>
+                        </label>
+                        <div id="sub-2" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt2-sub" value="Application form printed/Sended" checked class="text-indigo-500"> Application form printed/Sended</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt2-sub" value="Application form print pending" class="text-indigo-500"> Application form print pending</label>
+                        </div>
+                    </div>
+
+                    <!-- Option 3 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-3" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">3. Slip Status</span>
+                        </label>
+                        <div id="sub-3" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt3-sub" value="Slip Printed" checked class="text-indigo-500"> Slip Printed</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt3-sub" value="Slip Pending" class="text-indigo-500"> Slip Pending</label>
+                        </div>
+                    </div>
+
+                    <!-- Option 4 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-4" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">4. Final Document Status</span>
+                        </label>
+                        <div id="sub-4" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt4-sub" value="Final Document Completed" checked class="text-indigo-500"> Final Document Completed</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt4-sub" value="Final Document printing Pending" class="text-indigo-500"> Final Document printing Pending</label>
+                        </div>
+                    </div>
+
+                    <!-- Option 5 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-3">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-5" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">5. Final Document Print (Qty, Color/B&W & Status)</span>
+                        </label>
+                        <div id="sub-5" class="hidden pl-7 pt-2 space-y-3 border-t border-slate-800">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <span class="text-xs text-slate-400">Status:</span>
+                                <label class="flex items-center gap-1 text-xs"><input type="radio" name="opt5-status" value="Clear" checked class="text-indigo-500"> Clear</label>
+                                <label class="flex items-center gap-1 text-xs"><input type="radio" name="opt5-status" value="Pring Pending" class="text-indigo-500"> Pring Pending</label>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Choose No. of Final Prints</label>
+                                    <input type="number" id="opt5-copies" min="1" value="1" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Color / Black & White</label>
+                                    <select id="opt5-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                                        <option value="Color">Color</option>
+                                        <option value="Black & White">Black & White</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 6 -->
+                    <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-700/60 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-6" class="mt-1 w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-slate-200">6. Lamination Provide</span>
+                        </label>
+                        <div id="sub-6" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt6-size" value="A4 Lamination" checked class="text-indigo-500"> A4 Size</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt6-size" value="A5 Lamination" class="text-indigo-500"> A5 Size</label>
+                        </div>
+                    </div>
+
+                    <!-- Option 7: Free Admit Card -->
+                    <div class="bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-500/30 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-7" class="mt-1 w-4 h-4 text-emerald-500 rounded bg-slate-900 border-slate-700 focus:ring-emerald-500">
+                            <span class="text-sm font-medium text-emerald-300">7. Add Admit Card FREE</span>
+                        </label>
+                        <div id="sub-7" class="hidden pl-7 pt-1 flex flex-wrap gap-4 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt7-type" value="Admit Card - Color" checked class="text-emerald-400"> Color</label>
+                            <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="opt7-type" value="Admit Card - Black & White" class="text-emerald-400"> Black & White</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Total Amount (₹)</label>
+                        <input type="number" id="total-amt" step="1" min="0" value="150" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Amount Paid (₹)</label>
+                        <input type="number" id="paid-amt" step="1" min="0" value="50" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Amount Pending (₹)</label>
+                        <input type="number" id="pending-amt" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-amber-400 font-semibold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Date & Time of Slip</label>
+                        <input type="datetime-local" id="slip-datetime" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Service Expected Delivery (Days)</label>
+                        <input type="number" id="delivery-days" min="0" value="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="lg:col-span-5 flex flex-col items-center">
+            <div class="sticky top-6 w-full flex flex-col items-center space-y-4">
+                <div class="w-full flex justify-between items-center no-print px-2">
+                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-indigo-400"></i> Thermal Receipt Preview (80mm)
+                    </h3>
+                    <span class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-full font-medium">Top-Left Print Ready</span>
+                </div>
+
+                <!-- 80mm Receipt Container -->
+                <div id="thermal-receipt" class="bg-white text-black thermal-font p-4 rounded-lg shadow-2xl w-full max-w-[340px] border border-slate-300 text-xs leading-tight">
+                    <div class="text-center space-y-1 mb-2.5 pb-2 border-b border-dashed border-black">
+                        <h2 class="text-sm font-bold tracking-tight uppercase">Dhankhar CSC Centre Dhakla</h2>
+                        <p class="text-[10px]">Mob.: 9996036806</p>
+                        <p class="text-[10px]">Email: ashishdhankhar704@gmail.com</p>
+                    </div>
+
+                    <div class="mb-2.5 pb-2 border-b border-dashed border-black space-y-1 text-[11px]">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold uppercase text-xs px-1.5 py-0.5 bg-slate-100 border border-black rounded" id="receipt-status-badge">PENDING PAYMENT</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Date: <strong id="p-date">--/--/---- --:--</strong></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Cust: <strong id="p-cust">--</strong> <span id="p-phone-wrap">(<span id="p-phone">--</span>)</span></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Service: <strong id="p-service">--</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-2.5 pb-2 border-b border-dashed border-black">
+                        <p class="font-bold text-[10px] mb-1 uppercase underline">Service Status & Options:</p>
+                        <ul id="p-checklist" class="space-y-1 text-[10px] pl-1">
+                            <li class="text-slate-500 italic">No option selected</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-2.5 pb-2 border-b border-dashed border-black space-y-1 text-[11px]">
+                        <div class="flex justify-between">
+                            <span>Total Amount:</span>
+                            <span class="font-bold" id="p-total">₹0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Amount Paid:</span>
+                            <span class="font-bold" id="p-paid">₹0</span>
+                        </div>
+                        <div class="flex justify-between text-xs pt-1 border-t border-black">
+                            <span class="font-bold">Amount Pending:</span>
+                            <span class="font-bold underline" id="p-pending">₹0</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 pb-2 border-b border-dashed border-black space-y-1 text-[11px]">
+                        <div class="flex justify-between">
+                            <span>Exp. Delivery:</span>
+                            <strong><span id="p-delivery-days">2</span> Days (<span id="p-delivery-date">--/--/----</span>)</strong>
+                        </div>
+                    </div>
+
+                    <div class="text-center space-y-1 pt-1">
+                        <p class="font-bold text-[10px]">*** THANK YOU FOR VISITING ***</p>
+                        <p class="text-[9px]">Please keep this slip for reference</p>
+                    </div>
+                </div>
+
+                <!-- Print Button -->
+                <button type="button" id="print-btn" class="w-full max-w-[340px] bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-semibold py-3.5 px-6 rounded-xl shadow-xl flex items-center justify-center gap-3 transition-all no-print cursor-pointer">
+                    <i class="fa-solid fa-print text-lg"></i> Print Slip (80mm Thermal)
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize current datetime in datetime-local input
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const datetimeInput = document.getElementById('slip-datetime');
+            datetimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            // Checkbox sub-options toggle listeners
+            const toggles = [
+                { chk: 'chk-1', sub: 'sub-1' },
+                { chk: 'chk-2', sub: 'sub-2' },
+                { chk: 'chk-3', sub: 'sub-3' },
+                { chk: 'chk-4', sub: 'sub-4' },
+                { chk: 'chk-5', sub: 'sub-5' },
+                { chk: 'chk-6', sub: 'sub-6' },
+                { chk: 'chk-7', sub: 'sub-7' }
+            ];
+
+            toggles.forEach(item => {
+                const chkEl = document.getElementById(item.chk);
+                const subEl = document.getElementById(item.sub);
+                chkEl.addEventListener('change', () => {
+                    if (chkEl.checked) {
+                        subEl.classList.remove('hidden');
+                    } else {
+                        subEl.classList.add('hidden');
+                    }
+                    updateReceipt();
+                });
+            });
+
+            // Financial automatic calculation
+            const totalInput = document.getElementById('total-amt');
+            const paidInput = document.getElementById('paid-amt');
+            const pendingInput = document.getElementById('pending-amt');
+
+            function calculatePending() {
+                const total = parseFloat(totalInput.value) || 0;
+                const paid = parseFloat(paidInput.value) || 0;
+                const pending = Math.max(0, total - paid);
+                pendingInput.value = pending;
+                
+                // Auto toggle master status based on payment
+                const clearRadio = document.querySelector('input[name="payment-master-status"][value="CLEAR"]');
+                const pendingRadio = document.querySelector('input[name="payment-master-status"][value="PENDING PAYMENT"]');
+                
+                if (pending === 0 && total > 0) {
+                    clearRadio.checked = true;
+                } else if (pending > 0) {
+                    pendingRadio.checked = true;
+                }
+                updateReceipt();
+            }
+
+            totalInput.addEventListener('input', calculatePending);
+            paidInput.addEventListener('input', calculatePending);
+
+            // Form inputs listener for real-time preview update
+            const allInputs = document.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                input.addEventListener('input', updateReceipt);
+                input.addEventListener('change', updateReceipt);
+            });
+
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                document.getElementById('slip-form').reset();
+                datetimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                toggles.forEach(item => document.getElementById(item.sub).classList.add('hidden'));
+                calculatePending();
+            });
+
+            // Print button action
+            document.getElementById('print-btn').addEventListener('click', () => {
+                window.print();
+            });
+
+            // Update receipt function
+            function updateReceipt() {
+                // Customer & Service
+                const custName = document.getElementById('cust-name').value.trim() || 'Walk-in Customer';
+                const custPhone = document.getElementById('cust-phone').value.trim();
+                const serviceName = document.getElementById('service-name').value.trim() || 'General CSC Service';
+                
+                document.getElementById('p-cust').textContent = custName;
+                if (custPhone) {
+                    document.getElementById('p-phone').textContent = custPhone;
+                    document.getElementById('p-phone-wrap').style.display = 'inline';
+                } else {
+                    document.getElementById('p-phone-wrap').style.display = 'none';
+                }
+                document.getElementById('p-service').textContent = serviceName;
+
+                // Status Badge
+                const masterStatus = document.querySelector('input[name="payment-master-status"]:checked').value;
+                const badge = document.getElementById('receipt-status-badge');
+                if (masterStatus === 'CLEAR') {
+                    badge.textContent = 'PAYMENT CLEAR';
+                    badge.className = 'font-bold uppercase text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-400 rounded';
+                } else {
+                    badge.textContent = 'PENDING PAYMENT';
+                    badge.className = 'font-bold uppercase text-xs px-1.5 py-0.5 bg-amber-100 text-amber-800 border border-amber-400 rounded';
+                }
+
+                // Date & Time formatting
+                const dtVal = datetimeInput.value;
+                if (dtVal) {
+                    const d = new Date(dtVal);
+                    const formattedDate = d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    document.getElementById('p-date').textContent = formattedDate;
+                }
+
+                // Checklist builder
+                const checklistUl = document.getElementById('p-checklist');
+                checklistUl.innerHTML = '';
+                let selectedCount = 0;
+
+                toggles.forEach((item, index) => {
+                    const chk = document.getElementById(item.chk);
+                    if (chk.checked) {
+                        selectedCount++;
+                        let detailText = '';
+                        const optNum = index + 1;
+
+                        if (optNum === 1) {
+                            const val = document.querySelector('input[name="opt1-sub"]:checked').value;
+                            detailText = `1. ${val}`;
+                        } else if (optNum === 2) {
+                            const val = document.querySelector('input[name="opt2-sub"]:checked').value;
+                            detailText = `2. ${val}`;
+                        } else if (optNum === 3) {
+                            const val = document.querySelector('input[name="opt3-sub"]:checked').value;
+                            detailText = `3. ${val}`;
+                        } else if (optNum === 4) {
+                            const val = document.querySelector('input[name="opt4-sub"]:checked').value;
+                            detailText = `4. ${val}`;
+                        } else if (optNum === 5) {
+                            const statusVal = document.querySelector('input[name="opt5-status"]:checked').value;
+                            const copies = document.getElementById('opt5-copies').value || 1;
+                            const printType = document.getElementById('opt5-type').value;
+                            detailText = `5. Print: ${statusVal} (${copies} Copy, ${printType})`;
+                        } else if (optNum === 6) {
+                            const sizeVal = document.querySelector('input[name="opt6-size"]:checked').value;
+                            detailText = `6. Lamination: ${sizeVal}`;
+                        } else if (optNum === 7) {
+                            const cardType = document.querySelector('input[name="opt7-type"]:checked').value;
+                            detailText = `7. FREE ${cardType}`;
+                        }
+
+                        const li = document.createElement('li');
+                        li.textContent = `- ${detailText}`;
+                        if (optNum === 7) {
+                            li.className = 'font-semibold text-emerald-700';
+                        }
+                        checklistUl.appendChild(li);
+                    }
+                });
+
+                if (selectedCount === 0) {
+                    const li = document.createElement('li');
+                    li.className = 'text-slate-500 italic';
+                    li.textContent = 'No option selected';
+                    checklistUl.appendChild(li);
+                }
+
+                // Financials
+                const total = document.getElementById('total-amt').value || 0;
+                const paid = document.getElementById('paid-amt').value || 0;
+                const pending = document.getElementById('pending-amt').value || 0;
+
+                document.getElementById('p-total').textContent = `₹${total}`;
+                document.getElementById('p-paid').textContent = `₹${paid}`;
+                document.getElementById('p-pending').textContent = `₹${pending}`;
+
+                // Delivery Days & Date calculation
+                const days = parseInt(document.getElementById('delivery-days').value) || 0;
+                document.getElementById('p-delivery-days').textContent = days;
+
+                if (dtVal) {
+                    const deliveryDate = new Date(dtVal);
+                    deliveryDate.setDate(deliveryDate.getDate() + days);
+                    document.getElementById('p-delivery-date').textContent = deliveryDate.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                }
+            }
+
+            // Initial calculation run
+            calculatePending();
+        });
+    </script>
+</body>
+</html>
